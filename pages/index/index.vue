@@ -28,7 +28,7 @@
 			<scroll-view class="doctor-scroll" scroll-x="true">
 				<view class="doctor-list">
 					<view class="doctor-card" v-for="(doctor, index) in doctorList" :key="index">
-						<view class="doctor-header">
+						<view class="doctor-header" @click="goDoctorDetail(doctor.id)">
 							<u-avatar :src="doctor.avatar" size="50"></u-avatar>
 							<view class="doctor-info">
 								<text class="doctor-name">{{ doctor.name }}</text>
@@ -90,6 +90,8 @@
 	import {
 		doctorListApi
 	} from '@/api/modules/doctor.js'
+	
+	import { knowledgeListApi } from '@/api/modules/knowledge.js'
 
 	export default {
 		data() {
@@ -107,7 +109,7 @@
 					}
 				],
 				functionList: [{
-						name: '名医咨询',
+						name: '名医介绍',
 						icon: 'account',
 						path: '/pages/doctor/list'
 					},
@@ -128,19 +130,7 @@
 					}
 				],
 				doctorList: [],
-				knowledgeList: [{
-						id: 1,
-						title: '乳腺自检的正确方法',
-						desc: '每月一次自我检查，早期发现乳腺问题...',
-						image: '/static/knowledge1.jpg'
-					},
-					{
-						id: 2,
-						title: '预防乳腺癌的饮食建议',
-						desc: '科学饮食有助于降低乳腺癌风险...',
-						image: '/static/knowledge2.jpg'
-					}
-				],
+				knowledgeList: [],
 				postList: [{
 						id: 1,
 						username: '小丽',
@@ -165,11 +155,14 @@
 		onLoad() {
 			this.loadData()
 			this.loadDoctorList()
+			this.getKnowledgeList()
 		},
 		methods: {
 			loadData() {
 				console.log('加载首页数据')
 			},
+
+
 
 			async loadDoctorList() {
 				uni.showLoading({
@@ -177,17 +170,35 @@
 				})
 
 				const res = await doctorListApi()
-			 
+
 				this.doctorList = res.data
-				 uni.hideLoading()
-			 
+				uni.hideLoading()
+
 
 			},
+			
+			async getKnowledgeList() {
+				const res = await knowledgeListApi()
+				if (res.code === 200) {
+					this.knowledgeList = res.data
+				}
+			},
+
+
+			goDoctorDetail(id) {
+
+				uni.navigateTo({
+					url: `/pages/doctor/detail?id=${id}`
+				});
+			},
+
 			navigateTo(path) {
 				uni.navigateTo({
 					url: path
 				})
-			}
+			},
+
+
 		}
 	}
 </script>
