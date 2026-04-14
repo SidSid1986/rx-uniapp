@@ -5,11 +5,11 @@ export const knowledgeListApi = () => {
 	return request.get('/knowledge/list')
 }
 
+
 // 知识详情
+ 
 export const knowledgeDetail = (id) => {
-	return request.get('/knowledge/detail', {
-		id
-	})
+	return request.get(`/knowledge/detail/${id}`)
 }
 
 // 新增/修改知识（后台管理用）

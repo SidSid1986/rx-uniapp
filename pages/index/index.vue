@@ -1,10 +1,5 @@
 <template>
 	<view class="container">
-		<!-- 顶部导航栏 -->
-		<!--    <view class="navbar">
-            <text class="navbar-title">乳腺健康关爱</text>
-        </view> -->
-
 		<!-- 轮播图 -->
 		<u-swiper :list="bannerList" height="300" indicator-pos="bottomRight" border-radius="10"></u-swiper>
 
@@ -19,10 +14,10 @@
 			</view>
 		</view>
 
-		<!-- 名医推荐 -->
+		<!-- 名医 -->
 		<view class="section">
 			<view class="section-title">
-				<text class="section-title-text">名医推荐</text>
+				<text class="section-title-text">医生介绍</text>
 				<text class="section-more" @click="navigateTo('/pages/doctor/list')">更多 ></text>
 			</view>
 			<scroll-view class="doctor-scroll" scroll-x="true">
@@ -53,7 +48,8 @@
 					<u-image width="100px" height="80px" :src="item.image" radius="5"></u-image>
 					<view class="knowledge-content">
 						<text class="knowledge-title">{{ item.title }}</text>
-						<text class="knowledge-desc">{{ item.desc }}</text>
+						<!-- 这里我帮你改成 description 就正常了 -->
+						<text class="knowledge-desc">{{ item.description }}</text>
 					</view>
 				</view>
 			</view>
@@ -90,8 +86,9 @@
 	import {
 		doctorListApi
 	} from '@/api/modules/doctor.js'
-	
-	import { knowledgeListApi } from '@/api/modules/knowledge.js'
+	import {
+		knowledgeListApi
+	} from '@/api/modules/knowledge.js'
 
 	export default {
 		data() {
@@ -121,10 +118,11 @@
 					{
 						name: '交流社区',
 						icon: 'chat',
-						path: '/pages/community/list'
+						path: '/pages/community/list',
+						type: 'tab' // 👈 只加这一句
 					},
 					{
-						name: '自检提醒',
+						name: '推荐医生',
 						icon: 'clock',
 						path: '/pages/reminder/index'
 					}
@@ -153,52 +151,51 @@
 			}
 		},
 		onLoad() {
-			this.loadData()
 			this.loadDoctorList()
 			this.getKnowledgeList()
 		},
 		methods: {
-			loadData() {
-				console.log('加载首页数据')
-			},
-
-
-
 			async loadDoctorList() {
 				uni.showLoading({
 					title: '加载中...'
 				})
-
 				const res = await doctorListApi()
-
 				this.doctorList = res.data
 				uni.hideLoading()
-
-
 			},
-			
+
 			async getKnowledgeList() {
 				const res = await knowledgeListApi()
 				if (res.code === 200) {
-					this.knowledgeList = res.data
+					this.knowledgeList = res.data.slice(0, 3)
 				}
 			},
 
-
 			goDoctorDetail(id) {
-
 				uni.navigateTo({
 					url: `/pages/doctor/detail?id=${id}`
-				});
-			},
-
-			navigateTo(path) {
-				uni.navigateTo({
-					url: path
 				})
 			},
-
-
+			navigateTo(path) {
+				// tabBar 页面 → switchTab
+				if (path == '/pages/community/list') {
+					uni.switchTab({
+						url: path
+					})
+				}
+				// 推荐医生 → 跳列表页
+				else if (path == '/pages/reminder/index') {
+					uni.navigateTo({
+						url: '/pages/reminder/list'
+					})
+				}
+				// 其他页面正常跳
+				else {
+					uni.navigateTo({
+						url: path
+					})
+				}
+			}
 		}
 	}
 </script>
@@ -208,18 +205,6 @@
 		background-color: #f9f9f9;
 		min-height: 100vh;
 		padding-bottom: 20rpx;
-	}
-
-	.navbar {
-		background: linear-gradient(135deg, #F8BBD9, #F48FB1);
-		color: #FFFFFF;
-		padding: 30rpx;
-		text-align: center;
-
-		.navbar-title {
-			font-size: 36rpx;
-			font-weight: bold;
-		}
 	}
 
 	.function-entry {

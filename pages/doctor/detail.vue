@@ -1,14 +1,5 @@
 <template>
 	<view class="doctor-detail-page">
-		<!-- 顶部导航 -->
-	<!-- 	<view class="navbar">
-			<view class="navbar-back" @click="goBack">
-				<u-icon name="arrow-left" size="24" color="#FFFFFF"></u-icon>
-			</view>
-			<text class="navbar-title">医生详情</text>
-			<view class="navbar-placeholder"></view>
-		</view> -->
-
 		<scroll-view class="scroll-content" scroll-y="true">
 			<!-- 医生基本信息 -->
 			<view class="basic-info">
@@ -16,12 +7,10 @@
 					<view class="avatar-section">
 						<u-avatar :src="doctor.avatar" size="120"></u-avatar>
 					</view>
-
 					<view class="info-section">
 						<text class="doctor-name">{{ doctor.name }}</text>
 						<text class="doctor-title">{{ doctor.title }}</text>
 						<text class="doctor-hospital">{{ doctor.hospital }}</text>
-
 						<view class="rating-section">
 							<u-rate :count="5" v-model="doctor.rating" disabled size="24"></u-rate>
 							<text class="rating-text">{{ doctor.rating }}分</text>
@@ -37,8 +26,8 @@
 					<text class="section-text">擅长领域</text>
 				</view>
 				<view class="expertise-tags">
-					<text class="expertise-tag" v-for="(tag, index) in doctor.tags.split(',')" :key="index">
-						{{ tag }}
+					<text class="expertise-tag" v-for="(tag, index) in doctor.tags" :key="index">
+						{{ tag.name }}
 					</text>
 				</view>
 			</view>
@@ -97,20 +86,45 @@
 						</view>
 						<text class="review-content">{{ review.content }}</text>
 					</view>
-
 					<view class="empty-review" v-if="doctor.reviews.length === 0">
 						<text class="empty-text">暂无患者评价</text>
 					</view>
 				</view>
 			</view>
 		</scroll-view>
+
+		<!-- 底部评价按钮 -->
+		<view class="bottom-btn">
+			<u-button type="primary" @click="openReviewPopup">
+				写评价
+			</u-button>
+		</view>
+
+		<!-- 原生弹窗 -->
+		<view class="popup-mask" v-if="showReviewPopup" @click="closeReviewPopup">
+			<view class="popup-content" @click.stop>
+				<view class="popup-title">发表评价</view>
+				
+				<view class="rate-row">
+					<text>评分：</text>
+					<u-rate v-model="reviewForm.rating" :count="5"></u-rate>
+				</view>
+				
+				<view class="input-row">
+					<textarea v-model="reviewForm.content" placeholder="请输入评价内容" maxlength="200"></textarea>
+				</view>
+				
+				<view class="popup-btns">
+					<u-button plain @click="closeReviewPopup">取消</u-button>
+					<u-button type="primary" @click="submitReview">提交</u-button>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script>
-	import {
-		doctorDetail
-	} from "@/api/modules/doctor.js"
+	import { doctorDetail, addReviewApi } from "@/api/modules/doctor.js"
 
 	export default {
 		data() {
@@ -122,11 +136,16 @@
 					title: "",
 					hospital: "",
 					rating: 0,
-					tags: "",
+					tags: [],
 					desc: "",
 					introduction: "",
-					background: "",
+					background: [],
 					reviews: []
+				},
+				showReviewPopup: false,
+				reviewForm: {
+					rating: 5,
+					content: ""
 				}
 			}
 		},
@@ -135,13 +154,34 @@
 			this.loadDoctorDetail();
 		},
 		methods: {
-			goBack() {
-				uni.navigateBack();
+			openReviewPopup() {
+				this.showReviewPopup = true
+			},
+			closeReviewPopup() {
+				this.showReviewPopup = false
 			},
 			async loadDoctorDetail() {
 				const res = await doctorDetail(this.doctorId)
 				if (res.code === 200) {
 					this.doctor = res.data
+				}
+			},
+			async submitReview() {
+				if (!this.reviewForm.content) {
+					uni.showToast({ title: "请输入评价", icon: "none" })
+					return
+				}
+				const params = {
+					doctor_id: this.doctorId,
+					rating: this.reviewForm.rating,
+					content: this.reviewForm.content
+				}
+				const res = await addReviewApi(params)
+				if (res.code === 200) {
+					uni.showToast({ title: "评价成功" })
+					this.showReviewPopup = false
+					this.reviewForm = { rating:5, content:"" }
+					this.loadDoctorDetail()
 				}
 			}
 		}
@@ -155,195 +195,125 @@
 		flex-direction: column;
 		background-color: #f9f9f9;
 	}
-
-	.navbar {
-		background: linear-gradient(135deg, #F8BBD9, #F48FB1);
-		color: #FFFFFF;
-		padding: 30rpx;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-
-		.navbar-back {
-			width: 60rpx;
-		}
-
-		.navbar-title {
-			font-size: 36rpx;
-			font-weight: bold;
-			flex: 1;
-			text-align: center;
-		}
-
-		.navbar-placeholder {
-			width: 60rpx;
-		}
-	}
-
-	.scroll-content {
-		flex: 1;
-	}
+	.scroll-content { flex:1; }
 
 	.basic-info {
 		background: linear-gradient(135deg, #F8BBD9, #F48FB1);
 		padding: 40rpx 30rpx;
 		color: #FFFFFF;
-
 		.doctor-header {
 			display: flex;
 			align-items: center;
-
-			.avatar-section {
-				margin-right: 30rpx;
-			}
-
+			.avatar-section { margin-right: 30rpx; }
 			.info-section {
 				flex: 1;
-
 				.doctor-name {
-					display: block;
-					font-size: 40rpx;
-					font-weight: bold;
-					margin-bottom: 10rpx;
+					display: block; font-size: 40rpx; font-weight: bold; margin-bottom:10rpx;
 				}
-
-				.doctor-title {
-					display: block;
-					font-size: 28rpx;
-					margin-bottom: 10rpx;
-					opacity: 0.9;
-				}
-
-				.doctor-hospital {
-					display: block;
-					font-size: 26rpx;
-					opacity: 0.8;
-					margin-bottom: 20rpx;
-				}
-
+				.doctor-title { display:block; font-size:28rpx; margin-bottom:10rpx; opacity:0.9; }
+				.doctor-hospital { display:block; font-size:26rpx; opacity:0.8; margin-bottom:20rpx; }
 				.rating-section {
-					display: flex;
-					align-items: center;
-
-					.rating-text {
-						margin-left: 20rpx;
-						font-size: 26rpx;
-					}
+					display:flex; align-items:center;
+					.rating-text { margin-left:20rpx; font-size:26rpx; }
 				}
 			}
 		}
 	}
 
 	.section {
-		background-color: #FFFFFF;
-		margin: 20rpx;
-		border-radius: 20rpx;
-		padding: 30rpx;
-		box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-
+		background:#fff; margin:20rpx; border-radius:20rpx; padding:30rpx;
+		box-shadow:0 2rpx 12rpx rgba(0,0,0,0.05);
 		.section-title {
-			display: flex;
-			align-items: center;
-			margin-bottom: 30rpx;
-
-			.section-icon {
-				font-size: 32rpx;
-				margin-right: 15rpx;
-			}
-
-			.section-text {
-				font-size: 32rpx;
-				font-weight: bold;
-				color: #333;
-			}
+			display:flex; align-items:center; margin-bottom:30rpx;
+			.section-icon { font-size:32rpx; margin-right:15rpx; }
+			.section-text { font-size:32rpx; font-weight:bold; color:#333; }
 		}
 	}
 
-	.expertise-tags {
-		.expertise-tag {
-			display: inline-block;
-			background-color: #FCE4EC;
-			color: #F48FB1;
-			padding: 12rpx 24rpx;
-			border-radius: 30rpx;
-			font-size: 26rpx;
-			margin-right: 20rpx;
-			margin-bottom: 20rpx;
-		}
-	}
-
-	.desc-text,
-	.introduction-text,
-	.background-text {
-		font-size: 28rpx;
-		line-height: 1.7;
-		color: #666;
+	.expertise-tag {
+		display:inline-block; background:#FCE4EC; color:#F48FB1;
+		padding:12rpx 24rpx; border-radius:30rpx; font-size:26rpx;
+		margin-right:20rpx; margin-bottom:20rpx;
 	}
 
 	.reviews {
 		.review-item {
-			padding: 30rpx 0;
-			border-bottom: 1rpx solid #f0f0f0;
-
+			padding:30rpx 0; border-bottom:1rpx solid #f0f0f0;
 			.review-header {
-				display: flex;
-				align-items: center;
-				margin-bottom: 20rpx;
-
+				display:flex; align-items:center; margin-bottom:20rpx;
 				.reviewer-info {
-					flex: 1;
-					margin-left: 20rpx;
-
-					.reviewer-name {
-						display: block;
-						font-size: 28rpx;
-						font-weight: bold;
-						color: #333;
-					}
-
-					.review-time {
-						display: block;
-						font-size: 24rpx;
-						color: #999;
-					}
+					flex:1; margin-left:20rpx;
+					.reviewer-name { display:block; font-size:28rpx; font-weight:bold; color:#333; }
+					.review-time { display:block; font-size:24rpx; color:#999; }
 				}
 			}
-
-			.review-content {
-				font-size: 28rpx;
-				color: #666;
-				line-height: 1.6;
-			}
+			.review-content { font-size:28rpx; color:#666; line-height:1.6; }
 		}
 	}
 
-	.empty-review {
-		padding: 40rpx 0;
+	.empty-review { padding:40rpx 0; text-align:center; .empty-text { color:#999; font-size:28rpx; } }
+
+	.background-list { display:flex; flex-direction:column; gap:16rpx; }
+	.bg-item { display:flex; font-size:28rpx; line-height:1.6; }
+	.bg-type { font-weight:bold; color:#333; width:100rpx; }
+	.bg-content { color:#666; flex:1; }
+
+	.bottom-btn {
+		padding:20rpx 30rpx; background:#fff; border-top:1rpx solid #eee;
+	}
+	.bottom-btn button {
+		background:#F8BBD9 !important;
+		border:none;
+		color:#fff;
+	}
+
+	/* 原生弹窗样式 */
+	.popup-mask {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0,0,0,0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 999;
+	}
+	.popup-content {
+		width: 600rpx;
+		background: #fff;
+		border-radius: 20rpx;
+		padding: 30rpx;
+	}
+	.popup-title {
+		font-size: 32rpx;
+		font-weight: bold;
 		text-align: center;
-
-		.empty-text {
-			color: #999;
-			font-size: 28rpx;
-		}
+		margin-bottom: 30rpx;
 	}
-	
-	.background-list {
-	    display: flex;
-	    flex-direction: column;
-	    gap: 16rpx;
+	.rate-row {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 30rpx;
 	}
-	.bg-item {
-	    display: flex;
-	    font-size: 28rpx;
-	    line-height: 1.6;
+	.input-row {
+		border: 1rpx solid #eee;
+		border-radius: 10rpx;
+		padding: 20rpx;
+		min-height: 200rpx;
+		margin-bottom: 30rpx;
 	}
-	.bg-type {
-	    font-weight: bold;
-	    color: #333;
-	    width: 100rpx;
+	textarea {
+		width: 100%;
+		height: 160rpx;
 	}
-	.bg-content {
-	    color: #666;
-	    flex: 1;
+	.popup-btns {
+		display: flex;
+		gap: 20rpx;
+	}
+	.popup-btns button {
+		flex: 1;
 	}
 </style>

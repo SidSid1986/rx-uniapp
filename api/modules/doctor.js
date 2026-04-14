@@ -1,8 +1,8 @@
 import request from '../request.js'
 
-// 医生列表
-export const doctorListApi = () => {
-	return request.get('/doctor/list')
+// 医生列表（支持搜索参数 keyword）
+export const doctorListApi = (params = {}) => {
+	return request.get('/doctor/list', params)
 }
 
 // 医生详情
@@ -11,7 +11,6 @@ export const doctorDetail = (id) => {
 		id
 	})
 }
-
 // 新增/修改医生（后台管理用）
 export const saveDoctor = (data) => {
 	return request.post('/doctor/save', data)
@@ -28,7 +27,7 @@ export const deleteDoctor = (id) => {
 export const uploadDoctorAvatar = (filePath) => {
 	return new Promise((resolve, reject) => {
 		uni.uploadFile({
-			url: 'http://localhost:8000/api/doctor/upload_avatar', // 开发环境
+			url: 'http://localhost:8000/api/doctor/upload_avatar',
 			filePath: filePath,
 			name: 'file',
 			success: (res) => {
@@ -52,4 +51,9 @@ export const uploadDoctorAvatar = (filePath) => {
 			}
 		})
 	})
+}
+
+// 新增评价
+export const addReviewApi = (data) => {
+	return request.post('/doctor/add_review', data)
 }
