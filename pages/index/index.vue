@@ -82,124 +82,113 @@
 	</view>
 </template>
 
-<script>
-	import {
-		doctorListApi
-	} from '@/api/modules/doctor.js'
-	import {
-		knowledgeListApi
-	} from '@/api/modules/knowledge.js'
-
-	export default {
-		data() {
-			return {
-				bannerList: [{
-						url: '/static/1.png'
-					},
-					{
-						url: '/static/2.png'
-					},
-					{
-						url: '/static/3.png'
-					}, {
-						url: '/static/4.png'
-					}
-				],
-				functionList: [{
-						name: '名医介绍',
-						icon: 'account',
-						path: '/pages/doctor/list'
-					},
-					{
-						name: '健康知识',
-						icon: 'file-text',
-						path: '/pages/knowledge/list'
-					},
-					{
-						name: '交流社区',
-						icon: 'chat',
-						path: '/pages/community/list',
-						type: 'tab' // 👈 只加这一句
-					},
-					{
-						name: '推荐医生',
-						icon: 'clock',
-						path: '/pages/reminder/index'
-					}
-				],
-				doctorList: [],
-				knowledgeList: [],
-				postList: [{
-						id: 1,
-						username: '小丽',
-						avatar: '/static/avatar1.jpg',
-						time: '2小时前',
-						content: '最近感觉乳房有些胀痛，有没有姐妹有类似经验？应该注意什么？',
-						likes: 12,
-						comments: 5
-					},
-					{
-						id: 2,
-						username: '健康天使',
-						avatar: '/static/avatar2.jpg',
-						time: '5小时前',
-						content: '分享我的康复经历，乳腺癌并不可怕，早期发现治愈率很高！',
-						likes: 45,
-						comments: 22
-					}
-				]
-			}
-		},
-		onLoad() {
-			this.loadDoctorList()
-			this.getKnowledgeList()
-		},
-		methods: {
-			async loadDoctorList() {
-				uni.showLoading({
-					title: '加载中...'
-				})
-				const res = await doctorListApi()
-				this.doctorList = res.data
-				uni.hideLoading()
-			},
-
-			async getKnowledgeList() {
-				const res = await knowledgeListApi()
-				if (res.code === 200) {
-					this.knowledgeList = res.data.slice(0, 3)
-				}
-			},
-
-			goDoctorDetail(id) {
-				uni.navigateTo({
-					url: `/pages/doctor/detail?id=${id}`
-				})
-			},
-			navigateTo(path) {
-				// tabBar 页面 → switchTab
-				if (path == '/pages/community/list') {
-					uni.switchTab({
-						url: path
-					})
-				}
-				// 推荐医生 → 跳列表页
-				else if (path == '/pages/reminder/index') {
-					uni.navigateTo({
-						url: '/pages/reminder/list'
-					})
-				}
-				// 其他页面正常跳
-				else {
-					uni.navigateTo({
-						url: path
-					})
-				}
-			}
-		}
-	}
-</script>
-
+ <script>
+ 	import {
+ 		doctorListApi
+ 	} from '@/api/modules/doctor.js'
+ 	import {
+ 		knowledgeListApi
+ 	} from '@/api/modules/knowledge.js'
+ 
+ 	export default {
+ 		data() {
+ 			return {
+ 				bannerList: [{
+ 						url: '/static/1.png'
+ 					},
+ 					{
+ 						url: '/static/2.png'
+ 					},
+ 					{
+ 						url: '/static/3.png'
+ 					}, {
+ 						url: '/static/4.png'
+ 					}
+ 				],
+ 				functionList: [{
+ 						name: '名医介绍',
+ 						icon: 'account',
+ 						path: '/pages/doctor/list'
+ 					},
+ 					{
+ 						name: '健康知识',
+ 						icon: 'file-text',
+ 						path: '/pages/knowledge/list'
+ 					},
+ 					{
+ 						name: '交流社区',
+ 						icon: 'chat',
+ 						path: '/pages/community/list',
+ 						type: 'tab'
+ 					},
+ 					{
+ 						name: '推荐医生',
+ 						icon: 'clock',
+ 						path: '/pages/reminder/index'
+ 					}
+ 				],
+ 				doctorList: [],
+ 				knowledgeList: [],
+ 				postList: [{
+ 						id: 1,
+ 						username: '小丽',
+ 						avatar: '/static/avatar1.jpg',
+ 						time: '2小时前',
+ 						content: '最近感觉乳房有些胀痛，有没有姐妹有类似经验？应该注意什么？',
+ 						likes: 12,
+ 						comments: 5
+ 					},
+ 					{
+ 						id: 2,
+ 						username: '健康天使',
+ 						avatar: '/static/avatar2.jpg',
+ 						time: '5小时前',
+ 						content: '分享我的康复经历，乳腺癌并不可怕，早期发现治愈率很高！',
+ 						likes: 45,
+ 						comments: 22
+ 					}
+ 				]
+ 			}
+ 		},
+ 		onLoad() {
+ 			this.loadDoctorList()
+ 			this.getKnowledgeList()
+ 		},
+ 		methods: {
+ 			async loadDoctorList() {
+ 				uni.showLoading({ title: '加载中...' })
+ 				// 首页只取第一页 5 条
+ 				const res = await doctorListApi({ page: 1, limit: 5 })
+ 				if (res.code === 200) {
+ 					this.doctorList = res.data
+ 				}
+ 				uni.hideLoading()
+ 			},
+ 
+ 			async getKnowledgeList() {
+ 				const res = await knowledgeListApi()
+ 				if (res.code === 200) {
+ 					this.knowledgeList = res.data.slice(0, 3)
+ 				}
+ 			},
+ 
+ 			goDoctorDetail(id) {
+ 				uni.navigateTo({
+ 					url: `/pages/doctor/detail?id=${id}`
+ 				})
+ 			},
+ 			navigateTo(path) {
+ 				if (path == '/pages/community/list') {
+ 					uni.switchTab({ url: path })
+ 				} else if (path == '/pages/reminder/index') {
+ 					uni.navigateTo({ url: '/pages/reminder/list' })
+ 				} else {
+ 					uni.navigateTo({ url: path })
+ 				}
+ 			}
+ 		}
+ 	}
+ </script>
 <style lang="scss" scoped>
 	.container {
 		background-color: #f9f9f9;

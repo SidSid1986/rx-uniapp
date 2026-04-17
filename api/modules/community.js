@@ -1,21 +1,21 @@
 import request from '../request.js'
 
-// 帖子列表
+// 帖子列表（修复）
 export const communityPostList = () => {
-  return request.get('/community/post/list')
+  return request.get('/community/list')
 }
 
-// ✅ 帖子详情 
+// 帖子详情（修复）
 export const communityPostDetail = (id) => {
-  return request.get(`/community/post/detail?id=${id}`)
+  return request.get(`/community/detail?id=${id}`)
 }
 
-// 发布评论
+// 发布评论（正常不用改）
 export const communityCommentAdd = (data) => {
   return request.post('/community/comment/add', data)
 }
 
-// 发布帖子
+// 发布帖子（修复）
 export const communityPostAdd = (data) => {
-  return request.post('/community/post/add', data)
+  return request.post('/community/save', data)
 }

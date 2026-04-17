@@ -42,22 +42,27 @@ export default {
   },
   methods: {
     async submit() {
-      if (!this.form.name) {
+      if (!this.form.name?.trim()) {
         uni.showToast({ title: '请输入医生姓名', icon: 'none' })
         return
       }
-      if (!this.form.content) {
+      if (!this.form.content?.trim()) {
         uni.showToast({ title: '请填写推荐理由', icon: 'none' })
         return
       }
 
-      const res = await addRecommendDoctor(this.form)
-      
-      if (res.code === 200) {
-        uni.showToast({ title: '提交成功！等待审核' })
-        setTimeout(() => {
-          uni.navigateBack()
-        }, 1500)
+      try {
+        const res = await addRecommendDoctor(this.form)
+        if (res.code === 200) {
+          uni.showToast({ title: '提交成功！等待审核', icon: 'success' })
+          setTimeout(() => {
+            uni.navigateBack()
+          }, 1500)
+        } else {
+          uni.showToast({ title: res.msg || '提交失败', icon: 'none' })
+        }
+      } catch (err) {
+        uni.showToast({ title: '网络异常', icon: 'none' })
       }
     }
   }
@@ -96,7 +101,7 @@ input {
   border-radius: 12rpx;
 }
 .btn {
-  background: #f8bbd9;
+  background: #f8bbd9 !important;
   border-radius: 12rpx;
   color: white;
 }

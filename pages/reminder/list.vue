@@ -3,8 +3,8 @@
     <view class="card" v-for="item in list" :key="item.id">
       <view class="top">
         <text class="name">{{ item.name || '匿名医生' }}</text>
-        <text class="status" :class="item.status === 1 ? 'pass' : ''">
-          {{ item.status === 1 ? '✅ 已采纳' : '⏳ 审核中' }}
+        <text class="status" :class="item.status === 1 ? 'pass' : item.status === 2 ? 'fail' : ''">
+          {{ item.status === 1 ? '✅ 已采纳' : item.status === 2 ? '❌ 已拒绝' : '⏳ 审核中' }}
         </text>
       </view>
 
@@ -16,7 +16,10 @@
       </view>
     </view>
 
-    <!-- 我要推荐 -->
+    <view class="empty" v-if="list.length === 0">
+      <text>暂无推荐记录</text>
+    </view>
+
     <view class="fab" @click="goPublish">
       <text>我要推荐</text>
     </view>
@@ -24,8 +27,8 @@
 </template>
 
 <script>
-// 引入接口
-import { getRecommendList } from '@/api/modules/recommend.js'
+// 👉 修复：接口名必须匹配
+import { getRecommendDoctorList } from '@/api/modules/recommend.js'
 
 export default {
   data() {
@@ -34,13 +37,17 @@ export default {
     }
   },
   onShow() {
-    // 每次进来刷新列表
     this.getList()
   },
   methods: {
     async getList() {
-      const res = await getRecommendList()
-      this.list = res.data
+      try {
+        const res = await getRecommendDoctorList()
+        console.log("推荐列表：", res)
+        this.list = res.data || []
+      } catch (err) {
+        uni.showToast({ title: '加载失败', icon: 'none' })
+      }
     },
     goPublish() {
       uni.navigateTo({ url: '/pages/reminder/index' })
@@ -77,6 +84,9 @@ export default {
 .status.pass {
   color: #07c160;
 }
+.status.fail {
+  color: #fa3f3f;
+}
 .info {
   font-size: 26rpx;
   color: #666;
@@ -86,6 +96,11 @@ export default {
   font-size: 26rpx;
   line-height: 1.5;
   color: #333;
+}
+.empty {
+  text-align: center;
+  padding-top: 100rpx;
+  color: #999;
 }
 .fab {
   position: fixed;

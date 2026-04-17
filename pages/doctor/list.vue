@@ -1,41 +1,28 @@
 <template>
 	<view class="doctor-list-page">
-		<!-- 顶部导航 -->
-		<!--      <view class="navbar">
-            <view class="navbar-back" @click="goBack">
-                <u-icon name="arrow-left" size="24" color="#FFFFFF"></u-icon>
-            </view>
-            <text class="navbar-title">名医推荐</text>
-            <view class="navbar-placeholder"></view>
-        </view> -->
-
 		<!-- 搜索区域 -->
 		<view class="search-box">
-			<u-search v-model="searchKeyword" placeholder="搜索医生姓名或科室" :show-action="false" bg-color="#F8F8F8"
-				border-color="#F8BBD9" @search="onSearch"></u-search>
+			<u-search v-model="searchKeyword" placeholder="搜索医生姓名或科室" :show-action="false" 
+				bg-color="#F8F8F8" border-color="#F8BBD9" @search="onSearch"></u-search>
 		</view>
 
 		<!-- 筛选条件 -->
 		<view class="filter-tabs">
 			<scroll-view class="filter-scroll" scroll-x="true">
 				<view class="filter-list">
-					<view class="filter-item" :class="{ active: currentFilter === 'all' }" @click="changeFilter('all')">
+					<view class="filter-item" :class="{ active: currentDept == 'all' }" @click="changeDept('all')">
 						全部
 					</view>
-					<view class="filter-item" :class="{ active: currentFilter === 'surgery' }"
-						@click="changeFilter('surgery')">
+					<view class="filter-item" :class="{ active: currentDept == 'surgery' }" @click="changeDept('surgery')">
 						乳腺外科
 					</view>
-					<view class="filter-item" :class="{ active: currentFilter === 'oncology' }"
-						@click="changeFilter('oncology')">
+					<view class="filter-item" :class="{ active: currentDept == 'oncology' }" @click="changeDept('oncology')">
 						肿瘤科
 					</view>
-					<view class="filter-item" :class="{ active: currentFilter === 'imaging' }"
-						@click="changeFilter('imaging')">
+					<view class="filter-item" :class="{ active: currentDept == 'imaging' }" @click="changeDept('imaging')">
 						影像科
 					</view>
-					<view class="filter-item" :class="{ active: currentFilter === 'traditional' }"
-						@click="changeFilter('traditional')">
+					<view class="filter-item" :class="{ active: currentDept == 'traditional' }" @click="changeDept('traditional')">
 						中医科
 					</view>
 				</view>
@@ -44,10 +31,9 @@
 
 		<!-- 医生列表 -->
 		<view class="doctor-list">
-			<view class="doctor-item" v-for="doctor in filteredDoctors" :key="doctor.id" @click="goToDetail(doctor.id)">
+			<view class="doctor-item" v-for="doctor in doctorsList" :key="doctor.id" @click="goToDetail(doctor.id)">
 				<view class="doctor-avatar">
 					<u-avatar :src="doctor.avatar" size="80"></u-avatar>
-
 				</view>
 
 				<view class="doctor-info">
@@ -58,7 +44,7 @@
 					</view>
 
 					<view class="doctor-tags">
-						<text class="tag" v-for="tag in doctor.tags" :key="tag">{{ tag }}</text>
+						<text class="tag" v-for="(tag,index) in doctor.tags" :key="index">{{ tag.name }}</text>
 					</view>
 
 					<view class="doctor-stats">
@@ -76,14 +62,22 @@
 						</view>
 					</view>
 				</view>
-
-
 			</view>
 		</view>
 
+		<!-- 加载提示 -->
+		<view class="loading" v-if="loading">
+			<text>加载中...</text>
+		</view>
+
+		<!-- 没有更多 -->
+		<view class="no-more" v-if="finished && doctorsList.length > 0">
+			<text>没有更多数据了</text>
+		</view>
+
 		<!-- 空状态 -->
-		<view class="empty-state" v-if="filteredDoctors.length === 0">
-			<u-empty mode="search" icon="/static/empty-search.png">
+		<view class="empty-state" v-if="!loading && finished && doctorsList.length === 0">
+			<u-empty mode="search">
 				<text class="empty-text">暂无相关医生</text>
 			</u-empty>
 		</view>
@@ -91,128 +85,86 @@
 </template>
 
 <script>
+	import { doctorListApi } from '@/api/modules/doctor.js'
+	
 	export default {
 		data() {
 			return {
 				searchKeyword: '',
-				currentFilter: 'all',
-				doctors: [{
-						id: 1,
-						name: '张美丽',
-						title: '乳腺外科主任医师',
-						hospital: '北京协和医院',
-						department: 'surgery',
-						avatar: '/static/doctors/doctor1.jpg',
-						online: true,
-						tags: ['乳腺微创', '乳腺癌手术', '乳腺重建'],
-						experience: 20,
-						patients: 5000,
-						rating: 4.9,
-						description: '擅长乳腺疾病诊断与微创手术，20年临床经验'
-					},
-					{
-						id: 2,
-						name: '王建国',
-						title: '肿瘤科主任医师',
-						hospital: '上海瑞金医院',
-						department: 'oncology',
-						avatar: '/static/doctors/doctor2.jpg',
-						online: false,
-						tags: ['化疗', '靶向治疗', '免疫治疗'],
-						experience: 15,
-						patients: 3000,
-						rating: 4.8,
-						description: '专注于乳腺癌综合治疗，发表多篇学术论文'
-					},
-					{
-						id: 3,
-						name: '李雪梅',
-						title: '影像科副主任医师',
-						hospital: '广州中山医院',
-						department: 'imaging',
-						avatar: '/static/doctors/doctor3.jpg',
-						online: true,
-						tags: ['乳腺超声', '钼靶检查', 'MRI诊断'],
-						experience: 12,
-						patients: 8000,
-						rating: 4.7,
-						description: '精通乳腺影像学诊断，准确率高'
-					},
-					{
-						id: 4,
-						name: '陈明华',
-						title: '中医科主任医师',
-						hospital: '成都中医药大学附属医院',
-						department: 'traditional',
-						avatar: '/static/doctors/doctor4.jpg',
-						online: true,
-						tags: ['中药调理', '针灸', '术后康复'],
-						experience: 25,
-						patients: 6000,
-						rating: 4.9,
-						description: '擅长中西医结合治疗乳腺疾病'
-					},
-					{
-						id: 5,
-						name: '赵晓雯',
-						title: '乳腺外科副主任医师',
-						hospital: '武汉同济医院',
-						department: 'surgery',
-						avatar: '/static/doctors/doctor5.jpg',
-						online: false,
-						tags: ['乳腺良性肿瘤', '乳腺炎', '乳腺增生'],
-						experience: 10,
-						patients: 2000,
-						rating: 4.6,
-						description: '专注于乳腺良性疾病的诊治'
-					}
-				]
+				currentDept: 'all',
+				doctorsList: [],
+				page: 1,
+				limit: 5,
+				loading: false,
+				finished: false
 			}
 		},
-		computed: {
-			filteredDoctors() {
-				let result = this.doctors;
 
-				// 按科室筛选
-				if (this.currentFilter !== 'all') {
-					result = result.filter(doctor => doctor.department === this.currentFilter);
-				}
+		onLoad() {
+			this.loadDoctorList()
+		},
 
-				// 按关键词搜索
-				if (this.searchKeyword) {
-					const keyword = this.searchKeyword.toLowerCase();
-					result = result.filter(doctor =>
-						doctor.name.toLowerCase().includes(keyword) ||
-						doctor.hospital.toLowerCase().includes(keyword) ||
-						doctor.title.toLowerCase().includes(keyword) ||
-						doctor.tags.some(tag => tag.toLowerCase().includes(keyword))
-					);
-				}
-
-				return result;
+		// 上拉加载更多
+		onReachBottom() {
+			if (!this.finished) {
+				this.page++
+				this.loadDoctorList()
 			}
 		},
+
 		methods: {
-			goBack() {
-				uni.navigateBack();
+			// 加载列表
+			async loadDoctorList() {
+				if (this.loading) return
+				this.loading = true
+
+				const params = {
+					page: this.page,
+					limit: this.limit,
+					keyword: this.searchKeyword,
+					department: this.currentDept === 'all' ? '' : this.currentDept
+				}
+
+				const res = await doctorListApi(params)
+				this.loading = false
+
+				if (res.code === 200) {
+					const data = res.data || []
+					if (this.page === 1) {
+						this.doctorsList = data
+					} else {
+						this.doctorsList = [...this.doctorsList, ...data]
+					}
+
+					// 判断是否还有更多
+					if (data.length < this.limit) {
+						this.finished = true
+					}
+				}
 			},
+
+			// 搜索
 			onSearch() {
-				console.log('搜索关键词:', this.searchKeyword);
+				this.resetAndLoad()
 			},
-			changeFilter(filter) {
-				this.currentFilter = filter;
+
+			// 切换科室
+			changeDept(dept) {
+				this.currentDept = dept
+				this.resetAndLoad()
 			},
+
+			// 重置并重新加载
+			resetAndLoad() {
+				this.page = 1
+				this.finished = false
+				this.doctorsList = []
+				this.loadDoctorList()
+			},
+
+			// 去详情
 			goToDetail(doctorId) {
-				uni.navigateTo({
-					url: `/pages/doctor/detail?id=${doctorId}`
-				});
-			},
-			consultDoctor(doctorId) {
-				uni.showToast({
-					title: '即将跳转到咨询页面',
-					icon: 'none'
-				});
-				// 实际开发中这里会跳转到咨询页面
+				uni.navigateTo({ url: `/pages/doctor/detail?id=${doctorId}` })
 			}
 		}
 	}
@@ -222,30 +174,6 @@
 	.doctor-list-page {
 		min-height: 100vh;
 		background-color: #f9f9f9;
-	}
-
-	.navbar {
-		background: linear-gradient(135deg, #F8BBD9, #F48FB1);
-		color: #FFFFFF;
-		padding: 30rpx;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-
-		.navbar-back {
-			width: 60rpx;
-		}
-
-		.navbar-title {
-			font-size: 36rpx;
-			font-weight: bold;
-			flex: 1;
-			text-align: center;
-		}
-
-		.navbar-placeholder {
-			width: 60rpx;
-		}
 	}
 
 	.search-box {
@@ -295,25 +223,7 @@
 		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
 
 		.doctor-avatar {
-			position: relative;
 			margin-right: 30rpx;
-
-			.online-status {
-				position: absolute;
-				bottom: -10rpx;
-				left: 50%;
-				transform: translateX(-50%);
-				background-color: #FF4444;
-				color: #FFFFFF;
-				padding: 4rpx 12rpx;
-				border-radius: 20rpx;
-				font-size: 20rpx;
-				white-space: nowrap;
-
-				&.online {
-					background-color: #67C23A;
-				}
-			}
 		}
 
 		.doctor-info {
@@ -380,18 +290,22 @@
 				}
 			}
 		}
+	}
 
-		.consult-btn {
-			margin-left: 20rpx;
-		}
+	.loading {
+		text-align: center;
+		padding: 20rpx;
+		color: #666;
+	}
+
+	.no-more {
+		text-align: center;
+		padding: 20rpx;
+		color: #999;
 	}
 
 	.empty-state {
 		padding: 100rpx 0;
-
-		.empty-text {
-			color: #999999;
-			font-size: 28rpx;
-		}
+		text-align: center;
 	}
 </style>
