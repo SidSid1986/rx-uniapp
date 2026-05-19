@@ -1,0 +1,49 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/doctor/list",
+    "pages/doctor/detail",
+    "pages/knowledge/list",
+    "pages/knowledge/detail",
+    "pages/community/list",
+    "pages/community/detail",
+    "pages/community/publish",
+    "pages/reminder/list",
+    "pages/reminder/index",
+    "pages/user/center"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "乳腺健康关爱",
+    "navigationBarBackgroundColor": "#F8BBD9",
+    "backgroundColor": "#F9F9F9"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#F8BBD9",
+    "borderStyle": "white",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/community/list",
+        "iconPath": "static/tabbar/community.png",
+        "selectedIconPath": "static/tabbar/community-active.png",
+        "text": "社区"
+      },
+      {
+        "pagePath": "pages/user/center",
+        "iconPath": "static/tabbar/user.png",
+        "selectedIconPath": "static/tabbar/user-active.png",
+        "text": "我的"
+      }
+    ]
+  },
+  "usingComponents": {}
+}

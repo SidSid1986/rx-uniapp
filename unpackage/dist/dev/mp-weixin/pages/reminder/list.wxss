@@ -1,0 +1,57 @@
+
+.wrap.data-v-46abcef2 {
+  background: #f9f9f9;
+  padding: 20rpx;
+  min-height: 100vh;
+}
+.card.data-v-46abcef2 {
+  background: white;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+.top.data-v-46abcef2 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10rpx;
+}
+.name.data-v-46abcef2 {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+.status.data-v-46abcef2 {
+  font-size: 24rpx;
+  color: #999;
+}
+.status.pass.data-v-46abcef2 {
+  color: #07c160;
+}
+.status.fail.data-v-46abcef2 {
+  color: #fa3f3f;
+}
+.info.data-v-46abcef2 {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+}
+.content.data-v-46abcef2 {
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #333;
+}
+.empty.data-v-46abcef2 {
+  text-align: center;
+  padding-top: 100rpx;
+  color: #999;
+}
+.fab.data-v-46abcef2 {
+  position: fixed;
+  bottom: 120rpx;
+  right: 30rpx;
+  background: #f8bbd9;
+  color: white;
+  padding: 20rpx 30rpx;
+  border-radius: 50rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+}
+

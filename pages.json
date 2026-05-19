@@ -84,6 +84,12 @@
 				"navigationBarBackgroundColor": "#F8BBD9",
 				"navigationBarTextStyle": "white"
 			}
+		},
+		{
+			"path": "pages/user/center",
+			"style": {
+				"navigationBarTitleText": ""
+			}
 		}
 	],
 	"globalStyle": {

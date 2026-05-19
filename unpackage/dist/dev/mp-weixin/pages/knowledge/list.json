@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "健康知识",
+  "navigationBarBackgroundColor": "#F8BBD9",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "u-image": "/uni_modules/uview-ui/components/u-image/u-image"
+  }
+}

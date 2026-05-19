@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "名医推荐",
+  "navigationBarBackgroundColor": "#F8BBD9",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "u-search": "/uni_modules/uview-ui/components/u-search/u-search",
+    "u-avatar": "/uni_modules/uview-ui/components/u-avatar/u-avatar",
+    "u-empty": "/uni_modules/uview-ui/components/u-empty/u-empty"
+  }
+}

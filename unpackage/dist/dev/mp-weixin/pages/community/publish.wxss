@@ -1,0 +1,41 @@
+
+.wrap.data-v-0eca1940 {
+	background: #f9f9f9;
+	min-height: 100vh;
+	padding: 20rpx;
+}
+.form-box.data-v-0eca1940 {
+	background: #fff;
+	border-radius: 16rpx;
+	padding: 30rpx;
+}
+.item.data-v-0eca1940 {
+	margin-bottom: 30rpx;
+}
+.label.data-v-0eca1940 {
+	font-size: 28rpx;
+	font-weight: bold;
+	margin-bottom: 16rpx;
+	display: block;
+}
+input.data-v-0eca1940 {
+	font-size: 28rpx;
+	padding: 20rpx;
+	background: #f9f9f9;
+	border-radius: 12rpx;
+}
+.content-input.data-v-0eca1940 {
+	width: 100%;
+	height: 300rpx;
+	background: #f9f9f9;
+	border-radius: 12rpx;
+	padding: 20rpx;
+	font-size: 28rpx;
+}
+.publish.data-v-0eca1940 {
+	background: #F8BBD9;
+	color: #fff;
+	border-radius: 12rpx;
+	margin-top: 20rpx;
+}
+

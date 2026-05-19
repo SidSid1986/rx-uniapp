@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "医生详情",
+  "navigationBarBackgroundColor": "#F8BBD9",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "u-avatar": "/uni_modules/uview-ui/components/u-avatar/u-avatar",
+    "u-rate": "/uni_modules/uview-ui/components/u-rate/u-rate",
+    "u-button": "/uni_modules/uview-ui/components/u-button/u-button"
+  }
+}
